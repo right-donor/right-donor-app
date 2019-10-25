@@ -1,0 +1,97 @@
+interface Person {
+  id: ID!
+  firstname: String!
+  secondname: String!
+  birthday: AWSDate!
+  photo: S3Object!
+  blood: BloodType
+}
+
+type Donor implements Person @model @searchable {
+  id: ID!
+  firstname: String!
+  secondname: String!
+  birthday: AWSDate!
+  photo: S3Object!
+  blood: BloodType
+  canDonateFrom: AWSDate!
+  donations:[Donation] @connection(name: "DonorDonation")
+  interviews: [medicalInterview]
+}
+
+type Medic implements Person @model @searchable {
+  id: ID!
+  firstname: String!
+  secondname: String!
+  birthday: AWSDate!
+  photo: S3Object!
+  blood: BloodType
+  hospital: Hospital
+  patients: [Patient] @connection(name: "MedicPatient")
+}
+
+type Patient implements Person @model @searchable {
+  id: ID!
+  firstname: String!
+  secondname: String!
+  birthday: AWSDate!
+  photo: S3Object!
+  blood: BloodType
+  donations: [Donation] @connection(name: "PatientDonation")
+  medic: Medic @connection(name: "MedicPatient")
+  hospital: Hospital
+}
+
+type medicalInterview {
+  date: AWSDate!
+  weight: Float!
+  recentSickness: Boolean!
+  recentAntibiotics: Boolean!
+  recentPregnancy: Boolean!
+  recentAlcohol:Boolean!
+  recentVaccines: Boolean!
+  recentTattoos: Boolean!
+  recentMenstrualCycle: Boolean!
+  diabetic: Boolean!
+  hypertension:Boolean!
+  bloodresults: BloodResults
+}
+
+type Donation @model @searchable{
+  id: ID!
+  dateNeeded: AWSDate!
+  dateFulfilled: AWSDate
+  donatedBy: Donor @connection(name: "DonorDonation")
+  assignedTo: Patient @connection(name: "PatientDonation")
+  bloodBagId: String
+  bloodType: BloodType!
+  bagAmount: Int!
+  hospital: Hospital!
+}
+
+type Hospital {
+  city: String!
+  country: String!
+  address_line1: String!
+  address_state: String!
+  address_zip: String!
+}
+
+type BloodType {
+  type: String!
+  rh: String!
+}
+
+type BloodResults {
+  vih: Boolean!
+  hepatitisB: Boolean!
+  hepatitisC: Boolean!
+  syphilis: Boolean!
+  chagas: Boolean!
+}
+
+type S3Object {
+  bucket: String!
+  region: String!
+  key: String!
+}
